@@ -19,6 +19,7 @@ class MLP(nn.Module):
         x = self.relu(x)
         x = self.fc2(x)
 
-    def get_params_numpy(self):
+    # Returns the parameters in a numpy array
+    def get_parameters_numpy(self):
         return np.concatenate([param.detach().numpy().flatten() for param in self.parameters()])
 
