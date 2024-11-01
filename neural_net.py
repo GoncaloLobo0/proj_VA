@@ -22,4 +22,16 @@ class MLP(nn.Module):
     # Returns the parameters in a numpy array
     def get_parameters_numpy(self):
         return np.concatenate([param.detach().numpy().flatten() for param in self.parameters()])
+    
+    # Loads parameters from a numpy array
+    def load_parameters_numpy(self, flat_params):
+        # flat_params index
+        index = 0
+    
+        for param in self.parameters():
 
+            num_elements = param.numel()
+            param_data = flat_params[index:index + num_elements]
+            param_tensor = torch.tensor(param_data.reshape(param.shape), dtype=param.dtype)
+            param.data = param_tensor
+            index += num_elements
