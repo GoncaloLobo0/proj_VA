@@ -19,6 +19,8 @@ class MLP(nn.Module):
         x = self.relu(x)
         x = self.fc2(x)
 
+        return x
+
     # Returns the parameters in a numpy array
     def get_parameters_numpy(self):
         return np.concatenate([param.detach().numpy().flatten() for param in self.parameters()])
@@ -35,3 +37,12 @@ class MLP(nn.Module):
             param_tensor = torch.tensor(param_data.reshape(param.shape), dtype=param.dtype)
             param.data = param_tensor
             index += num_elements
+
+    # Calculates the inverted loss
+    def calculate_fitness(self, X, y):
+        with torch.no_grad():
+            outputs = self(X)
+            loss_fn = nn.CrossEntropyLoss()
+            loss = loss_fn(outputs, y)
+
+        return (loss.item())
