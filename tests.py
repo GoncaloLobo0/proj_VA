@@ -135,4 +135,53 @@ def mutate_test():
 
     print(pop.individuals[0].get_parameters_numpy())
 
-mutate_test()
+
+def select_and_crossover_test():
+    transform = transforms.Compose([
+        transforms.ToTensor(),  # Convert images to tensor
+        transforms.Lambda(lambda x: x.view(-1))
+    ])
+
+    train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+
+    train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+
+    pop = Population(pop_size=100, input_size=1, hidden_size=2, output_size=2, dataloader=train_loader)
+
+    print(len(pop.individuals))
+    pop.select_tournament(50, 10)
+
+    print(len(pop.individuals))
+    pop.crossover_twopoint_steady(20)
+
+    print(len(pop.individuals))
+
+def advance_gen_test():
+    transform = transforms.Compose([
+        transforms.ToTensor(),  # Convert images to tensor
+        transforms.Lambda(lambda x: x.view(-1))
+    ])
+
+    train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+
+    dataset_size = len(train_dataset)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=dataset_size, shuffle=True)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+
+    pop = Population(pop_size=400, input_size=28*28, hidden_size=200, output_size=10, dataloader=train_loader)
+
+    print(len(pop.individuals))
+    print(pop.get_best_individual().fitness)
+    
+    for _ in range(1,6000):
+        pop.advance_generation()
+        print(pop.get_best_individual().fitness)
+        
+    print(len(pop.individuals))
+    print(pop.get_best_individual().fitness)
+
+
+advance_gen_test()

@@ -12,12 +12,21 @@ class MLP(nn.Module):
         self.fc1 = nn.Linear(input_size, hidden_size)    # First hidden layer
         self.relu = nn.ReLU()                            # ReLU activation
         self.fc2 = nn.Linear(hidden_size, output_size)   # Output layer
-        
+        #self.softmax = nn.Softmax(dim=1)                      # Softmax for classifiying
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        for layer in self.children():
+            if isinstance(layer, nn.Linear):
+                nn.init.xavier_uniform_(layer.weight)
+                nn.init.zeros_(layer.bias)
+
     # Forward pass
     def forward(self, x):
         x = self.fc1(x)
         x = self.relu(x)
         x = self.fc2(x)
+        #x = self.softmax(x)
 
         return x
 
@@ -45,4 +54,4 @@ class MLP(nn.Module):
             loss_fn = nn.CrossEntropyLoss()
             loss = loss_fn(outputs, y)
 
-        return (loss.item())
+        return (-loss.item())
