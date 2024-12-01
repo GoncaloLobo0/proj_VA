@@ -53,5 +53,10 @@ class MLP(nn.Module):
             outputs = self(X)
             loss_fn = nn.CrossEntropyLoss()
             loss = loss_fn(outputs, y)
+            
+            _, predicted = torch.max(outputs, dim=1)  # Get the predicted class
+            correct = (predicted == y).sum().item()   # Count correct predictions
+            total = y.size(0)                         # Total number of samples
+            accuracy = correct / total
 
-        return (-loss.item())
+        return (-loss.item(), accuracy)
