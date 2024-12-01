@@ -1,9 +1,11 @@
 import numpy as np
+import torch
 from neural_net import MLP
 from evolution import Population
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
 import copy
+from torch.utils.data import Subset
 
 def get_and_load_params_test():
     test = True
@@ -166,19 +168,33 @@ def advance_gen_test():
 
     train_dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
     test_dataset = datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+    
+    subset_indices = torch.randperm(len(train_dataset))[:3000]
+    train_subset = Subset(train_dataset, subset_indices)
 
-    dataset_size = len(train_dataset)
-    train_loader = DataLoader(dataset=train_dataset, batch_size=dataset_size, shuffle=True)
+    dataset_size = len(train_subset)
+    train_loader = DataLoader(dataset=train_subset, batch_size=dataset_size, shuffle=True)
     test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
 
-    pop = Population(pop_size=400, input_size=28*28, hidden_size=200, output_size=10, dataloader=train_loader)
+    pop = Population(pop_size=500, input_size=28*28, hidden_size=50, output_size=10, dataloader=train_loader)
 
     print(len(pop.individuals))
     print(pop.get_best_individual().fitness)
     
-    for _ in range(1,6000):
+    best = -10000
+    
+    for _ in range(1,60000):
+        #print("advance")
         pop.advance_generation()
-        print(pop.get_best_individual().fitness)
+        #print("advance finished")
+        gen_best = pop.get_best_individual().fitness
+        print(gen_best, pop.get_best_individual().accuracy, end="    ")
+        
+        if gen_best > best:
+            best = gen_best
+            print("best")
+        else:
+            print("")
         
     print(len(pop.individuals))
     print(pop.get_best_individual().fitness)
