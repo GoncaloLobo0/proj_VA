@@ -81,7 +81,6 @@ def crossover_test():
     test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
 
     pop = Population(pop_size=4, input_size=1, hidden_size=1, output_size=2, dataloader=train_loader)
-
     
     before1 = copy.deepcopy(pop.individuals[0].get_parameters_numpy())
     before2 = copy.deepcopy(pop.individuals[1].get_parameters_numpy())
@@ -173,31 +172,45 @@ def advance_gen_test():
     train_subset = Subset(train_dataset, subset_indices)
 
     dataset_size = len(train_subset)
+    test_size = len(test_dataset)
     train_loader = DataLoader(dataset=train_subset, batch_size=dataset_size, shuffle=True)
-    test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
+    test_loader = DataLoader(dataset=test_dataset, batch_size=test_size, shuffle=False)
 
     pop = Population(pop_size=500, input_size=28*28, hidden_size=50, output_size=10, dataloader=train_loader)
+     
+    data_iter = iter(test_loader)
+    data = next(data_iter)
+    X, y = data
 
     print(len(pop.individuals))
     print(pop.get_best_individual().fitness)
     
     best = -10000
+    best_model = None
     
-    for _ in range(1,60000):
-        #print("advance")
+    for x in range(1,60000):
         pop.advance_generation()
-        #print("advance finished")
         gen_best = pop.get_best_individual().fitness
         print(gen_best, pop.get_best_individual().accuracy, end="    ")
         
         if gen_best > best:
             best = gen_best
+            best_model = copy.deepcopy(pop.get_best_individual())
             print("best")
         else:
             print("")
         
+        if x % 50 == 0:
+            print('-------------------------------------------------------------------')
+            print(f"Iteration {x}: Testing best model")
+        
+            loss, accuracy = best_model.calculate_fitness(X, y)
+
+            print(f"Test Accuracy after {x} iterations: {accuracy}")
+            print('-------------------------------------------------------------------')
+
+
     print(len(pop.individuals))
     print(pop.get_best_individual().fitness)
-
 
 advance_gen_test()
