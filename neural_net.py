@@ -60,3 +60,25 @@ class MLP(nn.Module):
             accuracy = correct / total
 
         return (-loss.item(), accuracy)
+    
+    def train_backprop(self, dataloader):
+        
+        size = len(dataloader.dataset)
+        
+        loss_fn = nn.CrossEntropyLoss()
+        optimizer = optim.SGD(self.parameters(), lr=0.1)
+               
+        self.train()
+        
+        for batch, (X, y) in enumerate(dataloader):
+            optimizer.zero_grad()
+            pred = self(X)
+            loss = loss_fn(pred, y)
+            loss.backward()
+            optimizer.step()
+            
+            if batch % 100 == 0:
+                loss, current = loss.item(), batch * len(X)
+                print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+        
+        return loss

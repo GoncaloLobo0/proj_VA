@@ -136,11 +136,10 @@ class Population():
             offspring_count += 1
 
     def advance_generation(self):
-        elite  = self.get_elite(3)
+        elite  = self.get_elite(int(self.pop_size*0.02))
         #print("tourn")
-        self.select_tournament(self.pop_size - len(elite), self.tourn_size)
+        self.select_tournament(self.pop_size, self.tourn_size)
         #print("cx")
-        
         
         self.crossover_twopoint_genrep(self.cxpb)
         #print("mut")
